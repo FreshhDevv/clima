@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geolocator_android/geolocator_android.dart';
 import 'package:clima/services/location.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:http/http.dart';
+import 'package:clima/services/networking.dart';
+
+const apiKey = '253211610f895c1f5e2cb1f94903adfd';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({Key? key}) : super(key: key);
@@ -14,38 +14,26 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
+  late double longitude;
+  late double latitude;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getLocation();
+    getLocationData();
   }
 
-  void getLocation() async {
+  void getLocationData() async {
     LocationPermission permission = await Geolocator.requestPermission();
     Location location = Location();
     await location.getCurrentLocation();
-    print(location.lattitude);
-    print(location.longitude);
-  }
+    latitude = location.lattitude;
+    longitude = location.longitude;
 
-  void getData() async {
-    http.Response response = await http.get(Uri.parse(
-        'https://api.openweathermap.org/data/2.5/weather?lat=4.155966&lon=9.263224&appid=253211610f895c1f5e2cb1f94903adfd'));
-    if (response.statusCode == 200) {
-      String data = response.body;
+    NetworkHelper networkHelper = NetworkHelper(
+        'https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apiKey');
 
-      var decodedData = jsonDecode(data);
-
-      double temperature = decodedData['main']['temp'];
-      int weatherConditionNumber = decodedData['weather'][0]['id'];
-      String cityName = decodedData['name'];
-      print(temperature);
-      print(weatherConditionNumber);
-      print(cityName);
-    } else {
-      print(response.statusCode);
-    }
+    var weatherData = await networkHelper.getData();
   }
   // Future<String> getData() async {
   //   final response = await http.get(Uri.parse(
@@ -60,7 +48,6 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    getData();
     return Scaffold();
   }
 }
