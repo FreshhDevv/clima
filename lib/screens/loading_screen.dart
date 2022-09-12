@@ -15,8 +15,6 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
-  late double longitude;
-  late double latitude;
   @override
   void initState() {
     // TODO: implement initState
@@ -28,11 +26,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
     LocationPermission permission = await Geolocator.requestPermission();
     Location location = Location();
     await location.getCurrentLocation();
-    latitude = location.lattitude;
-    longitude = location.longitude;
 
     NetworkHelper networkHelper = NetworkHelper(
-        'https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apiKey&units=metric');
+        'https://api.openweathermap.org/data/2.5/weather?lat=${location.lattitude}&lon=${location.longitude}&appid=$apiKey&units=metric');
 
     var weatherData = await networkHelper.getData();
 
